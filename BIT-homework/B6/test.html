@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<style>
+    /* Custom styles for the to-do list */
+    #taskList .list-group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #taskList .edit-task {
+        display: none;
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const taskInput = document.getElementById("taskInput");
+        const addTaskButton = document.getElementById("addTaskButton");
+        const taskList = document.getElementById("taskList");
+
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+        function renderTasks() {
+            taskList.innerHTML = "";
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement("li");
+                taskItem.className = "list-group-item";
+                taskItem.innerHTML = `
+        <span class="task-text">${task}</span>
+        <input type="text" class="edit-task form-control" value="${task}">
+        <div>
+          <button class="btn btn-info btn-sm edit-btn">Edit</button>
+          <button class="btn btn-success btn-sm save-btn">Save</button>
+          <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+        </div>
+      `;
+                taskList.appendChild(taskItem);
+
+                const editBtn = taskItem.querySelector(".edit-btn");
+                const saveBtn = taskItem.querySelector(".save-btn");
+                const deleteBtn = taskItem.querySelector(".delete-btn");
+                const taskText = taskItem.querySelector(".task-text");
+                const editTask = taskItem.querySelector(".edit-task");
+
+                editBtn.addEventListener("click", () => {
+                    taskText.style.display = "none";
+                    editTask.style.display = "block";
+                    editBtn.style.display = "none";
+                    saveBtn.style.display = "inline-block";
+                });
+
+                saveBtn.addEventListener("click", () => {
+                    const newTask = editTask.value.trim();
+                    if (newTask) {
+                        tasks[index] = newTask;
+                        localStorage.setItem("tasks", JSON.stringify(tasks));
+                        renderTasks();
+                    }
+                });
+
+                deleteBtn.addEventListener("click", () => {
+                    tasks.splice(index, 1);
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    renderTasks();
+                });
+            });
+        }
+
+        addTaskButton.addEventListener("click", () => {
+            const task = taskInput.value.trim();
+            if (task) {
+                tasks.push(task);
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                taskInput.value = "";
+                renderTasks();
+            }
+        });
+
+        renderTasks();
+    });
+
+</script>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">To-Do List</h1>
+        <div class="input-group mb-3">
+            <input type="text" id="taskInput" class="form-control" placeholder="Enter task">
+            <div class="input-group-append">
+                <button class="btn btn-primary" id="addTaskButton" type="button">Add Task</button>
+            </div>
+        </div>
+        <ul class="list-group" id="taskList"></ul>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
+
+</html>
